@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: 192.168.243.143
   remote_user: root
   roles:
     - cisco_ise

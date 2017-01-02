@@ -1,7 +1,7 @@
 Cisco ISE
 =========
 
-This role helps to manipulate Cisco Identity Services Engine configurations.
+This role helps to manipulate Cisco Identity Services Engine configurations.<br />
 At the moment only Endpoint configuration is supported.
 
 
@@ -14,6 +14,14 @@ Prerequisites
 -------------
 External RESTful Service API must be enabled: 
 http://www.cisco.com/c/en/us/td/docs/security/ise/2-1/api_ref_guide/api_ref_book/ise_api_ref_ers2.html#37305
+
+Endpoint Manipulation
+--------------
+The play 'cisco_ise_endpoint' adds/changes or deletes MAC Addresses per Cisco ISE identitygroup. 
+All given MAC Addresses for an identitygroup will be configured on ISE. All other MAC Addresses for this group will be deleted. <br />
+The module uses bulk API requests for adding and deleting endpoints for better performance. <br />
+It should be able to handle thousands of MAC addresses. <br />
+At the current version 'staticGroupAssignment' is always set to true, and staticProfileAssignment is always set to false.
 
 Role Variables
 --------------
@@ -39,7 +47,7 @@ cisco_ise_identitygroups: [{
 	name: "Blacklist",
 	macaddress: [] }
 ]
-```
+``
 
 Dependencies
 ------------
