@@ -1,17 +1,45 @@
-Role Name
+Cisco ISE
 =========
 
-A brief description of the role goes here.
+This role helps to manipulate Cisco Identity Services Engine configurations.
+At the moment only Endpoint configuration is supported.
+
 
 Requirements
 ------------
+Cisco ISE 2.1 or 2.2
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+
+Prerequisites
+-------------
+External RESTful Service API must be enabled: 
+http://www.cisco.com/c/en/us/td/docs/security/ise/2-1/api_ref_guide/api_ref_book/ise_api_ref_ers2.html#37305
 
 Role Variables
 --------------
+```
+cisco_ise_ers_username: api
+cisco_ise_ers_password: changeme
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+cisco_ise_ers_ssl: true
+cisco_ise_ers_port: 9060
+cisco_ise_ers_validate_certs: false
+
+# if true and no mac address given to identity group
+# all endpoints will be deleted 
+cisco_ise_endpoint_force: true
+# how long do we wait for bulk jobs to be completed
+cisco_ise_endpoint_timeout: 30
+
+# this is how identitygroups must be defined
+# variable takes a list of hashes (keys are 'name' and 'macaddress')
+cisco_ise_identitygroups: [{
+	name: "Workstation", 
+	macaddress: ["00:16:3e:2b:46:35","00:16:3e:5e:ab:2e","00:16:3e:7d:26:5a"] },{
+	name: "Blacklist",
+	macaddress: [] }
+]
+```
 
 Dependencies
 ------------
@@ -30,9 +58,9 @@ Including an example of how to use your role (for instance, with variables passe
 License
 -------
 
-BSD
+MIT
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Markus Rainer (maxrainer18@gmail.com)

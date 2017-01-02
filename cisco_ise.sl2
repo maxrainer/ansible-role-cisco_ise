@@ -1,0 +1,17 @@
+{
+	"folders":
+	[
+		{
+			"path": "~/Documents/dev/ansible/roles/cisco_ise"
+		}
+	],
+	"settings":
+	{
+		"tab_size": 2
+	},
+	"build_systems":
+	[
+		{
+		}
+	]
+}
