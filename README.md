@@ -1,7 +1,7 @@
 Cisco ISE
 =========
 
-This role helps to manipulate Cisco Identity Services Engine configurations.
+This role helps to manipulate Cisco Identity Services Engine configurations.<br />
 At the moment only Endpoint configuration is supported.
 
 
