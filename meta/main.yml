@@ -7,10 +7,14 @@ galaxy_info:
 
   min_ansible_version: 2.0
 
+  platforms: 
+    - name: GenericUNIX
+      versions:
+        - all
+
   galaxy_tags: [
-    cisco
-    ise
+    cisco,
+    ise,
     security
-    identity
    ]
 dependencies: []
