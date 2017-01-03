@@ -12,13 +12,13 @@ Cisco ISE 2.1 or 2.2
 
 Prerequisites
 -------------
-External RESTful Service API must be enabled: 
+External RESTful Service API must be enabled: <br />
 http://www.cisco.com/c/en/us/td/docs/security/ise/2-1/api_ref_guide/api_ref_book/ise_api_ref_ers2.html#37305
 
 Endpoint Manipulation
 --------------
-The play 'cisco_ise_endpoint' adds/changes or deletes MAC Addresses per Cisco ISE identitygroup. 
-All given MAC Addresses for an identitygroup will be configured on ISE. All other MAC Addresses for this group will be deleted. <br />
+The play 'cisco_ise_endpoint' adds/changes or deletes MAC Addresses per Cisco ISE identitygroup. <br />
+All given MAC Addresses for an identitygroup will be configured on ISE. All other MAC Addresses for this group will be deleted. <br /><br />
 The module uses bulk API requests for adding and deleting endpoints for better performance. <br />
 It should be able to handle thousands of MAC addresses. <br />
 At the current version 'staticGroupAssignment' is always set to true, and staticProfileAssignment is always set to false. <br />
