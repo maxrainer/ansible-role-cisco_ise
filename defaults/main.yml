@@ -10,13 +10,20 @@ cisco_ise_ers_validate_certs: false
 
 # if true and no mac address given to identity group
 # all endpoints will be deleted 
-cisco_ise_endpoint_force: true
+cisco_ise_endpoint_force: false
 # how long do we wait for bulk jobs to be completed
 cisco_ise_endpoint_timeout: 30
 
-cisco_ise_identitygroups: [{
+
+#
+# identitygroups are defined as ARRAYS. 
+# each ARRAY holds a DICT with keys: 'name' and 'mac' 
+# if MAC is empty array and 'cisco_ise_endpoint_force: true' 
+# all Endpoints will be deleted!
+#
+cisco_ise_identitygroups: [ {
 	name: "Workstation", 
-	macaddress: ["00:16:3e:2b:46:35","00:16:3e:5e:ab:2e","00:16:3e:7d:26:5a"] },{
+	mac: ["00:16:3e:2b:46:35","00:16:3e:5e:ab:2e","00:16:3e:7d:26:5a"] },{
 	name: "Blacklist",
-	macaddress: []
-}]
+	mac: ["00:16:3e:2b:46:38"]
+} ]

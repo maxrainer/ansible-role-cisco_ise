@@ -1,5 +1,10 @@
 ---
-- hosts: 192.168.243.143
-  remote_user: root
-  roles:
+
+- name: ISE
+  hosts: ise  
+  gather_facts: False
+  connection: local
+  roles: 
     - cisco_ise
+  tags: 
+    - ise 

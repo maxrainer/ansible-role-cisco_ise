@@ -2,9 +2,10 @@
 # endpoint tasks
 
 
-- name: add/change/delete Cisco ISE Endpoints
+- name: add change delete Cisco ISE Endpoints
   cisco_ise_endpoint:
     ssl: "{{ cisco_ise_ers_ssl }}"
+    host: "{{ ansible_host }}"
     port: "{{ cisco_ise_ers_port }}"
     validate_certs: "{{ cisco_ise_ers_validate_certs }}"
     timeout: "{{ cisco_ise_endpoint_timeout }}"
@@ -12,5 +13,5 @@
     username: "{{ cisco_ise_ers_username }}"
     password: "{{ cisco_ise_ers_password }}"
     identitygroup: "{{ item.name }}"
-    macaddress: "{{ item.macaddress }}"
-  with_items: cisco_ise_identitygroups
+    macaddress: "{{ item.mac }}"
+  with_items: "{{ cisco_ise_identitygroups }}"

@@ -21,7 +21,9 @@ The play 'cisco_ise_endpoint' adds/changes or deletes MAC Addresses per Cisco IS
 All given MAC Addresses for an identitygroup will be configured on ISE. All other MAC Addresses for this group will be deleted. <br />
 The module uses bulk API requests for adding and deleting endpoints for better performance. <br />
 It should be able to handle thousands of MAC addresses. <br />
-At the current version 'staticGroupAssignment' is always set to true, and staticProfileAssignment is always set to false.
+At the current version 'staticGroupAssignment' is always set to true, and staticProfileAssignment is always set to false. <br />
+If MAC is an empty array and 'cisco_ise_endpoint_force: true' all Endpoints will be deleted! <br />
+If MAC is an empty array and 'cisco_ise_endpoint_force: false' an error is raised. 
 
 Role Variables
 --------------
@@ -39,29 +41,35 @@ cisco_ise_endpoint_force: true
 # how long do we wait for bulk jobs to be completed
 cisco_ise_endpoint_timeout: 30
 
-# this is how identitygroups must be defined
-# variable takes a list of hashes (keys are 'name' and 'macaddress')
-cisco_ise_identitygroups: [{
+#
+# identitygroups are defined as ARRAYS. 
+# each ARRAY holds a DICT with keys: 'name' and 'mac' 
+# if MAC is empty array and 'cisco_ise_endpoint_force: true' 
+# all Endpoints will be deleted!
+#
+cisco_ise_identitygroups: [ {
 	name: "Workstation", 
-	macaddress: ["00:16:3e:2b:46:35","00:16:3e:5e:ab:2e","00:16:3e:7d:26:5a"] },{
+	mac: ["00:16:3e:2b:46:35","00:16:3e:5e:ab:2e","00:16:3e:7d:26:5a"] },{
 	name: "Blacklist",
-	macaddress: [] }
-]
-``
-
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+	mac: ["00:16:3e:2b:46:38"]
+} ]
+```
 
 Example Playbook
-----------------
+--------------
+The playbook must contain 'gather_facts: False' and 'connection: local'<br />
+Example:
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```
+- name: ISE
+  hosts: ise  
+  gather_facts: False
+  connection: local
+  roles: 
+    - cisco_ise
+  tags: 
+    - ise  
+```
 
 License
 -------
