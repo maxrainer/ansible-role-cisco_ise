@@ -19,7 +19,7 @@ Endpoint Manipulation
 The play 'cisco_ise_endpoint' adds/changes or deletes MAC Addresses per Cisco ISE identitygroup. <br />
 All given MAC Addresses for an identitygroup will be configured on ISE. All other MAC Addresses for this group will be deleted. <br /><br />
 The module uses bulk API requests for adding and deleting endpoints for better performance. <br />
-It should be able to handle thousands of MAC addresses. <br />
+It should be able to handle <b>thousands</b> of MAC addresses. <br />
 At the current version 'staticGroupAssignment' is always set to true, and staticProfileAssignment is always set to false. <br />
 If MAC is an empty array and 'cisco_ise_endpoint_force: true' all Endpoints will be deleted! <br />
 If MAC is an empty array and 'cisco_ise_endpoint_force: false' an error is raised. 
