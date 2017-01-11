@@ -14,7 +14,6 @@ cisco_ise_endpoint_force: false
 # how long do we wait for bulk jobs to be completed
 cisco_ise_endpoint_timeout: 30
 
-
 #
 # identitygroups are defined as ARRAYS. 
 # each ARRAY holds a DICT with keys: 'name' and 'mac' 
@@ -27,3 +26,49 @@ cisco_ise_identitygroups: [ {
 	name: "Blacklist",
 	mac: ["00:16:3e:2b:46:38"]
 } ]
+
+# if true all devices will be deleted and created again
+# use this if only RADIUS or TACACS shared secrets changed
+cisco_ise_networkdevice_force: false
+
+#
+# networkdevice configuration 
+# splitted into default and device values
+# snmp_v3_security_level: can be either AUTH, NO_AUTH, PRIV
+# tacacs_connection_mode: one out of ["OFF", ON_DRAFT_COMPLIANT, ON_LEGACY]
+#
+
+cisco_mgmt_device_defaults: {
+	snmp_enabled: false,
+	snmp_version: 2c,
+	snmp_polling_interval: "28800",
+	snmp_ro_community: public,
+	snmp_rw_community: private,
+	snmp_v3_username: snmpv3user,
+	snmp_v3_auth_protocol: MD5,
+	snmp_v3_auth_password: changeme,
+	snmp_v3_privacy_protocol: DES,
+	snmp_v3_privacy_password: changeme,
+	snmp_v3_security_level: AUTH,
+	tacacs_enabled: true,
+	tacacs_shared_secret: changeme,
+	tacacs_connection_mode: ON_LEGACY,
+	radius_enabled: true,
+	radius_shared_secret: changeme,
+	radius_enable_keywrap: false,
+	radius_coaport: "1700",
+	profile_name: Cisco,
+	network_device_groups: ["Location#All Locations","Device Type#All Device Types"]
+}
+
+#
+# this is how networkdevices are added
+# MUST contain 'name' and 'ipaddress'
+# CAN override any parameter from 'cisco_mgmt_device_defaults'
+#
+cisco_mgmt_devices: [ {
+	name: testdevice1,
+	ipaddress: 192.168.0.1 },{
+	name: testdevice2,
+	ipaddress: 192.168.0.2 }
+]

@@ -1,0 +1,15 @@
+---
+# networkdevice tasks
+
+
+- name: add change delete Cisco ISE Network Devices
+  cisco_ise_networkdevice:
+    ssl: "{{ cisco_ise_ers_ssl }}"
+    host: "{{ ansible_host }}"
+    port: "{{ cisco_ise_ers_port }}"
+    validate_certs: "{{ cisco_ise_ers_validate_certs }}"
+    force: "{{ cisco_ise_networkdevice_force }}"
+    username: "{{ cisco_ise_ers_username }}"
+    password: "{{ cisco_ise_ers_password }}"
+    networkdevices: "{{ cisco_mgmt_devices }}"
+    mgmt_defaults: "{{ cisco_mgmt_device_defaults }}"

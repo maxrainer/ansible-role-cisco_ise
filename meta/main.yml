@@ -13,6 +13,7 @@ galaxy_info:
         - all
 
   galaxy_tags: [
+    networking,
     cisco,
     ise,
     security

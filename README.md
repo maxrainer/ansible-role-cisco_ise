@@ -1,19 +1,18 @@
 Cisco ISE
 =========
 
-This role helps to manipulate Cisco Identity Services Engine configurations.<br />
-At the moment only Endpoint configuration is supported.
-
+This role manipulates Cisco Identity Services Engine configurations. <br />
+Endpoint and Networkdevice manipulation (add, delete, change) are supported so far. 
 
 Requirements
 ------------
-Cisco ISE 2.1 or 2.2
-
+Cisco ISE version 2.1 or 2.2
 
 Prerequisites
 -------------
 External RESTful Service API must be enabled: <br />
-http://www.cisco.com/c/en/us/td/docs/security/ise/2-1/api_ref_guide/api_ref_book/ise_api_ref_ers2.html#37305
+http://www.cisco.com/c/en/us/td/docs/security/ise/2-1/api_ref_guide/api_ref_book/ise_api_ref_ers2.html#37305 <br />
+The variables 'cisco_ise_ers_[variable]' must be set overridden to match your credentials.
 
 Endpoint Manipulation
 --------------
@@ -24,6 +23,13 @@ It should be able to handle thousands of MAC addresses. <br />
 At the current version 'staticGroupAssignment' is always set to true, and staticProfileAssignment is always set to false. <br />
 If MAC is an empty array and 'cisco_ise_endpoint_force: true' all Endpoints will be deleted! <br />
 If MAC is an empty array and 'cisco_ise_endpoint_force: false' an error is raised. 
+
+
+Networkdevice Manipulation
+----------------
+The play 'cisco_ise_networkdevice' adds/changes or deletes Networkdevices. <br />
+Networkdevices are defined in the List: 'cisco_mgmt_devices'. The variables defaults are set  in 'cisco_mgmt_device_defaults'. Each of this variables can be overriden in 'cisco_mgmt_devices' per device. <br />
+
 
 Role Variables
 --------------
@@ -53,6 +59,53 @@ cisco_ise_identitygroups: [ {
 	name: "Blacklist",
 	mac: ["00:16:3e:2b:46:38"]
 } ]
+
+# if true all devices will be deleted and created again
+# use this if only RADIUS or TACACS shared secrets changed
+cisco_ise_networkdevice_force: false
+
+#
+# networkdevice configuration 
+# splitted into default and device values
+# snmp_v3_security_level: can be either AUTH, NO_AUTH, PRIV
+# tacacs_connection_mode: one out of ["OFF", ON_DRAFT_COMPLIANT, ON_LEGACY]
+#
+cisco_mgmt_device_defaults: {
+  snmp_enabled: true,
+  snmp_version: 2c,
+  snmp_polling_interval: "28800",
+  snmp_ro_community: public,
+  snmp_rw_community: private,
+  snmp_v3_username: snmpv3user,
+  snmp_v3_auth_protocol: MD5,
+  snmp_v3_auth_password: changeme,
+  snmp_v3_privacy_protocol: DES,
+  snmp_v3_privacy_password: changeme,
+# AUTH, NO_AUTH, PRIV
+  snmp_v3_security_level: AUTH,
+  tacacs_enabled: false,
+  tacacs_shared_secret: changeme,
+# "OFF", ON_DRAFT_COMPLIANT, ON_LEGACY
+  tacacs_connection_mode: "OFF",
+  radius_enabled: false,
+  radius_shared_secret: changeme,
+  radius_enable_keywrap: false,
+  radius_coaport: "1700",
+  profile_name: Cisco,
+  network_device_groups: ["Location#All Locations","Device Type#All Device Types"]
+}
+
+#
+# this is how networkdevices are added
+# MUST contain 'name' and 'ipaddress'
+# CAN override any parameter from 'cisco_mgmt_device_defaults'
+#
+cisco_mgmt_devices: [ {
+  name: testdevice1,
+  ipaddress: 192.168.0.1 },{
+  name: testdevice2,
+  ipaddress: 192.168.0.2 }
+]
 ```
 
 Example Playbook

@@ -1,7 +1,10 @@
 ---
 # tasks file for cisco_ise
 
+- name: include Networkdevice
+  include: networkdevice.yml
 
 - name: include Endpoint 
   include: endpoint.yml
-  
+
+
