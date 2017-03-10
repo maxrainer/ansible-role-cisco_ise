@@ -1,0 +1,17 @@
+---
+# task redis data source loading
+
+
+- name: prepare for redis variables
+  set_fact:
+    ise_identity_hostvar: "hostvar::{{ inventory_hostname }}::cisco_ise_identitygroups"
+  no_log: True
+
+
+- debug: var=ise_identity_hostvar
+- debug: var=redis_server_url
+
+- name: set variables from redis
+  set_fact:
+    cisco_ise_identitygroups: "{{ lookup('redis_kv', redis_server_url + ',' + ise_identity_hostvar) }}"
+

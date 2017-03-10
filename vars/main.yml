@@ -1,2 +1,4 @@
 ---
 # vars file for cisco_ise
+
+cisco_ise_redis_identitygroups: cisco_ise_identitygroups

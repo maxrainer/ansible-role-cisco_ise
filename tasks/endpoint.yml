@@ -1,6 +1,8 @@
 ---
 # endpoint tasks
 
+- debug: var=cisco_ise_identitygroups
+
 
 - name: add change delete Cisco ISE Endpoints
   cisco_ise_endpoint:
@@ -15,3 +17,4 @@
     identitygroup: "{{ item.name }}"
     macaddress: "{{ item.mac }}"
   with_items: "{{ cisco_ise_identitygroups }}"
+  

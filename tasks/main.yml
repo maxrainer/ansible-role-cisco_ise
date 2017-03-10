@@ -1,10 +1,15 @@
 ---
 # tasks file for cisco_ise
 
+- debug: var=inventory_hostname
+
+- name: include Redis Data Source
+  include: redis.yml
+  when: cisco_ise_redis_enabled
+
 - name: include Networkdevice
   include: networkdevice.yml
 
 - name: include Endpoint 
   include: endpoint.yml
-
 
