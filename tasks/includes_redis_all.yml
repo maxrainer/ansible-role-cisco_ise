@@ -1,0 +1,13 @@
+
+
+- name: fetch vlan list
+  set_fact:
+    redis_vlan_list: "{{ lookup('redis_kv', redis_server_url + ',' + cisco_ise_redis_vlan_list_key) }}"
+    include_redis_all: true
+
+- debug: var=redis_vlan_list 
+
+- name: execute each vlan 
+  include: redis.yml
+  with_items: '{{ redis_vlan_list  }}'
+

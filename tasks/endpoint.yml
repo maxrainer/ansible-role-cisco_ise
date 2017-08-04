@@ -1,10 +1,8 @@
 ---
 # endpoint tasks
 
-- debug: var=cisco_ise_identitygroups
 
-
-- name: add change delete Cisco ISE Endpoints
+- name: add change delete Cisco ISE Endpoints multiple VLANs
   cisco_ise_endpoint:
     ssl: "{{ cisco_ise_ers_ssl }}"
     host: "{{ ansible_host }}"
@@ -17,4 +15,18 @@
     identitygroup: "{{ item.name }}"
     macaddress: "{{ item.mac }}"
   with_items: "{{ cisco_ise_identitygroups }}"
-  
+  when: not cisco_ise_redis_single_vlan and not include_redis_all
+
+- name: 'add change delete Cisco ISE Endpoint single VLAN {{ cisco_ise_play_vlan }}'
+  cisco_ise_endpoint:
+    ssl: "{{ cisco_ise_ers_ssl }}"
+    host: "{{ ansible_host }}"
+    port: "{{ cisco_ise_ers_port }}"
+    validate_certs: "{{ cisco_ise_ers_validate_certs }}"
+    timeout: "{{ cisco_ise_endpoint_timeout }}"
+    force: "{{ cisco_ise_endpoint_force }}"
+    username: "{{ cisco_ise_ers_username }}"
+    password: "{{ cisco_ise_ers_password }}"
+    identitygroup: "vlan{{ cisco_ise_play_vlan }}"
+    macaddress: "{{ cisco_ise_endpoints }}"
+  when: cisco_ise_redis_enabled and (cisco_ise_redis_single_vlan or include_redis_all)

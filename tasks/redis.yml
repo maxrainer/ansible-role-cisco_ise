@@ -1,17 +1,43 @@
 ---
 # task redis data source loading
+  
+#- debug: var=outer_vlan
+
+- set_fact: 
+    cisco_ise_play_vlan: "{{ outer_vlan }}"
+  when: include_redis_all
+
+#- name: prepare for redis variables
+#  set_fact:
+#    ise_identity_hostvar: "hostvar::{{ inventory_hostname }}::cisco_ise_identitygroups"
+#  no_log: True
 
 
-- name: prepare for redis variables
-  set_fact:
-    ise_identity_hostvar: "hostvar::{{ inventory_hostname }}::cisco_ise_identitygroups"
-  no_log: True
+#- debug: var=ise_identity_hostvar
+#- debug: var=redis_server_url
+#- debug: var=cisco_ise_play_vlan
 
 
-- debug: var=ise_identity_hostvar
-- debug: var=redis_server_url
+#- name: set variables from redis
+#  set_fact:
+#    cisco_ise_identitygroups: "{{ lookup('redis_kv', redis_server_url + ',' + ise_identity_hostvar) }}"
 
-- name: set variables from redis
-  set_fact:
-    cisco_ise_identitygroups: "{{ lookup('redis_kv', redis_server_url + ',' + ise_identity_hostvar) }}"
 
+- name: fetch vlan selected in play
+  set_fact: 
+    c_endpoints: "{{ lookup('redis_kv', redis_server_url + ',' + cisco_ise_redis_endpoint_key + cisco_ise_play_vlan ) }}"
+#  when: cisco_ise_redis_single_vlan or include_redis_all
+
+
+- name: set fact maclist
+  set_fact: 
+    cisco_ise_endpoints: '[{% for i in c_endpoints %} "{{ i.mac }}", {%endfor%}]'
+#  when: cisco_ise_redis_single_vlan or include_redis_all
+
+# set_fact: foo="{% for i in bar_result.results %}{{ i.ansible_facts.foo_item }} {%endfor%}"
+
+#- debug: var=cisco_ise_vlan_list
+#- debug: var=cisco_ise_endpoints
+
+- name: execute endpoint.yml
+  include: endpoint.yml
