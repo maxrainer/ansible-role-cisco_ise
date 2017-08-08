@@ -3,7 +3,6 @@
 
 # do this for redis and multi vlan
 
-- debug: var=redis_server_url
 
 - name: fetch vlan list for redis and multiple vlan
   set_fact:
@@ -11,8 +10,8 @@
     include_redis_all: true
   when: cisco_ise_redis_enabled and not cisco_ise_redis_single_vlan 
 
-- debug: var=redis_vlan_list
-  when: cisco_ise_redis_enabled and not cisco_ise_redis_single_vlan
+#- debug: var=redis_vlan_list
+#  when: cisco_ise_redis_enabled and not cisco_ise_redis_single_vlan
 
 - name: execute each vlan for redis and multiple vlan
   include: redis.yml
