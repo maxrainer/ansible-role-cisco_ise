@@ -22,6 +22,7 @@ cisco_ise_ers_validate_certs: false
 cisco_ise_endpoint_force: false
 # how long do we wait for bulk jobs to be completed
 cisco_ise_endpoint_timeout: 30
+redis_vlan_list: []
 
 #
 # identitygroups are defined as ARRAYS. 
