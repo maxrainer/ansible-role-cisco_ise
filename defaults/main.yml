@@ -1,6 +1,9 @@
 ---
 # defaults file for cisco_ise
 
+cisco_ise_play_endpoint: true
+cisco_ise_play_device: false
+
 cisco_ise_redis_enabled: false
 cisco_ise_redis_single_vlan: false
 #redis_server_url: 'redis://localhost:6379'

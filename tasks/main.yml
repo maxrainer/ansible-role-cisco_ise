@@ -8,7 +8,7 @@
   set_fact:
     redis_vlan_list: "{{ lookup('redis_kv', redis_server_url + ',' + cisco_ise_redis_vlan_list_key) }}"
     include_redis_all: true
-  when: cisco_ise_redis_enabled and not cisco_ise_redis_single_vlan 
+  when: cisco_ise_play_endpoint and cisco_ise_redis_enabled and not cisco_ise_redis_single_vlan 
   tags:
     - endpoint
 
@@ -17,24 +17,25 @@
   with_items: "{{ redis_vlan_list }}"
   loop_control: 
     loop_var: outer_vlan
-  when: cisco_ise_redis_enabled and not cisco_ise_redis_single_vlan
+  when: cisco_ise_play_endpoint and cisco_ise_redis_enabled and not cisco_ise_redis_single_vlan
   tags:
     - endpoint
 
 - name: execute one vlan with redis
   include: redis.yml
-  when: cisco_ise_redis_enabled and cisco_ise_redis_single_vlan
+  when: cisco_ise_play_endpoint and cisco_ise_redis_enabled and cisco_ise_redis_single_vlan
   tags:
     - endpoint
 
 - name: include endpoint if not redis 
   include: endpoint.yml
-  when: not cisco_ise_redis_enabled
+  when: cisco_ise_play_endpoint and not cisco_ise_redis_enabled
   tags:
     - endpoint
 
 - name: include networkdevice
   include: networkdevice.yml
+  when: cisco_ise_play_device
   tags:
     - device
 
