@@ -160,7 +160,7 @@ def _get_endpoints_by_group(group_id, page, result):
     if con.code == 200:
         tree = ET.fromstring(con.read())
         for e in tree.iter():
-            if (e.tag == 'resource'):
+            if (e.tag == '{ers.ise.cisco.com}resource'):
                 ep = endpoint(e.get('id'),e.get('name'),e.get('description'))
                 result[e.get('name')] = ep
             if (e.attrib.get('total') != None):
