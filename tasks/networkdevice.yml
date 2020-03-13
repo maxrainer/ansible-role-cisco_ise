@@ -8,7 +8,7 @@
     host: "{{ ansible_host }}"
     port: "{{ cisco_ise_ers_port }}"
     validate_certs: "{{ cisco_ise_ers_validate_certs }}"
-    force: "{{ cisco_ise_networkdevice_force }}"
+    delete_devices: "{{ cisco_ise_delete_devices }}"
     username: "{{ cisco_ise_ers_username }}"
     password: "{{ cisco_ise_ers_password }}"
     networkdevices: "{{ cisco_mgmt_devices }}"
