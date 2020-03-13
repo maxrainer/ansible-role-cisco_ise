@@ -60,9 +60,8 @@ cisco_ise_identitygroups: [ {
 	mac: ["00:16:3e:2b:46:38"]
 } ]
 
-# if true all devices will be deleted and created again
-# use this if only RADIUS or TACACS shared secrets changed
-cisco_ise_networkdevice_force: false
+# if true all devices listed in the script will be just deleted
+delete_devices: false
 
 #
 # networkdevice configuration 
@@ -111,7 +110,7 @@ cisco_mgmt_devices: [ {
 Example Playbook
 --------------
 The playbook must contain 'gather_facts: False' and 'connection: local'<br />
-Example:
+Example 1:
 
 ```
 - name: ISE
@@ -124,6 +123,27 @@ Example:
     - ise  
 ```
 
+Example 2:
+```
+- name: UPDATING ISE
+  hosts: ise
+  gather_facts: false
+  connection: local
+  roles:
+  - role: maxrainer.cisco_ise
+    cisco_ise_play_device: true
+    cisco_ise_ers_username: ansible
+    cisco_ise_ers_password: password$123
+    cisco_ise_delete_devices: false 
+    cisco_mgmt_devices:
+      - name: xxxxxxxx11
+        ipaddress: 111.168.102.129
+      - name: xxxxxxxx12
+        ipaddress: 192.168.142.128
+      - name: xxxxxxxx23
+        ipaddress: 193.166.0.0
+        mask: 16
+```
 License
 -------
 
@@ -133,3 +153,9 @@ Author Information
 ------------------
 
 Markus Rainer (maxrainer18@gmail.com)
+
+Contributors:
+--------------
+- for "cisco_ise_networkdevice.py" 
+Przemyslaw Konitz
+Travis Hountondji
