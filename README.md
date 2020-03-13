@@ -6,7 +6,7 @@ Endpoint and Networkdevice manipulation (add, delete, change) are supported so f
 
 Requirements
 ------------
-Cisco ISE version 2.1 or 2.2
+Cisco ISE version 2.1 or 2.2 (tested also on 2.7)
 
 Prerequisites
 -------------
