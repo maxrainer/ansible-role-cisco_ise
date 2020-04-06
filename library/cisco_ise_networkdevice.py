@@ -174,12 +174,15 @@ def update_networkdevice_json(body, id):
                'Content-Type':'application/json;charset=utf-8'}
 
     body = json.dumps(body)
-
+#    print("-------- printing update body --------")
+#    print(body)
+#    print("-------- END UPDATE BODY --------")
     con = open_url(url, data=body, headers=headers, method=method, use_proxy=False, force_basic_auth=True,
                    validate_certs=validate_certs,  url_username=username, url_password=password)
 
     if con.code == 200:
         return True
+#    print("======= CONN CODE  :  "+str(con.code) + " ==============")
     return False
 
 
@@ -312,7 +315,11 @@ def feed_networkdevice_with_paramfromISE(networkdevice, ise_param):
 
     netdevice = copy.deepcopy(networkdevice)
     ise_param_updated = copy.deepcopy(ise_param)
-
+#    print("---------- PROVIDED BY USER ---------------")
+#    print(netdevice)
+#    print("----------- FROM ISE  -----------")
+#    print(ise_param_updated)
+#    print("--------END FEED---------")
     for key in netdevice.keys():
         #---------GENERAL fields for "NetworkDevice":  --------
         if key == "name":
@@ -367,26 +374,31 @@ def feed_networkdevice_with_paramfromISE(networkdevice, ise_param):
             else:
                 ise_param_updated['NetworkDevice'].pop('snmpsettings', None)
         #--------- TACACS fields --------
-        if key == "tacacs_enabled" in netdevice:
-            if netdevice['tacacs_enabled'] == 'true':
+        if key == "tacacs_enabled":
+            if netdevice['tacacs_enabled'] == True:
+                #if TACACS was not used in ISE for that device we need to initialize this dectionary to update specific fields
+                if 'tacacsSettings' not in ise_param_updated['NetworkDevice'].keys():
+                    ise_param_updated['NetworkDevice']['tacacsSettings'] = {}
+                    ise_param_updated['NetworkDevice']['tacacsSettings']['sharedSecret'] = "test"
+                    ise_param_updated['NetworkDevice']['tacacsSettings']['connectModeOptions'] = "OFF"
+                    ise_param_updated['NetworkDevice']['tacacsSettings']['previousSharedSecretExpiry'] = "0"
                 if "tacacs_shared_secret" in netdevice:
                     ise_param_updated['NetworkDevice']['tacacsSettings']['sharedSecret'] = netdevice['tacacs_shared_secret']
                 if "tacacs_connection_mode" in netdevice:
-				    ise_param_updated['NetworkDevice']['tacacsSettings']['connectModeOptions'] = netdevice['tacacs_connection_mode']
+                    ise_param_updated['NetworkDevice']['tacacsSettings']['connectModeOptions'] = netdevice['tacacs_connection_mode']
 
             else:
-			    ise_param_updated['NetworkDevice'].pop('tacacsSettings', None)
+                ise_param_updated['NetworkDevice'].pop('tacacsSettings', None)
         #--------- RADIUS fields --------
         if key == "radius_enabled":
-            if netdevice['radius_enabled'] == 'true':
-                if "tacacs_shared_secret" in netdevice:
-                    ise_param_updated['NetworkDevice']['tacacsSettings']['sharedSecret'] = netdevice['tacacs_shared_secret']
-                if "tacacs_connection_mode" in netdevice:
-				    ise_param_updated['NetworkDevice']['tacacsSettings']['connectModeOptions'] = netdevice['tacacs_connection_mode']
+            if netdevice['radius_enabled'] == True:
+                if "radius_shared_secret" in netdevice:
+                    ise_param_updated['NetworkDevice']['authenticationSettings']['radiusSharedSecret'] = netdevice['radius_shared_secret']
+                # to be completed 
 
             else:
-			    ise_param_updated['NetworkDevice']['authenticationSettings']['radiusSharedSecret'] = ''
-			    ise_param_updated['NetworkDevice']['authenticationSettings'].pop('networkProtocol', None)
+                ise_param_updated['NetworkDevice']['authenticationSettings']['radiusSharedSecret'] = ''
+                ise_param_updated['NetworkDevice']['authenticationSettings'].pop('networkProtocol', None)
         #---------- DEVICE GROUP membership ---------
         if key == "network_device_groups":
             ise_param_updated['NetworkDevice']['NetworkDeviceGroupList'] = netdevice['network_device_groups']
@@ -464,7 +476,9 @@ def main():
     try:
         ise_networkdevices = get_all_networkdevices_json()
         networkdevices = json.loads(networkdevices)
-        
+#        print("---------- ORIGINAL USERS -------")
+#        print(str(networkdevices))
+#        print("---------- ORIGINAL END -------")
         if delete_devices == True:
             #print("========= TRYING TO DELETE =============")
             i = 0
