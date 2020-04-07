@@ -1,17 +1,17 @@
 ---
 # defaults file for cisco_ise
 
-cisco_ise_play_endpoint: true
-cisco_ise_play_device: false
+# cisco_ise_play_endpoint: false
+# cisco_ise_play_device: false
 
-cisco_ise_redis_enabled: false
-cisco_ise_redis_single_vlan: false
-#redis_server_url: 'redis://localhost:6379'
+# cisco_ise_redis_enabled: false
+# cisco_ise_redis_single_vlan: false
+# redis_server_url: 'redis://localhost:6379'
 
-cisco_ise_redis_vlan_list_key: 'netw::endpoint::vlans'
-cisco_ise_redis_endpoint_key: 'netw::endpoint::vlan::'
-cisco_ise_play_vlan: vlan100
-include_redis_all: false
+# cisco_ise_redis_vlan_list_key: 'netw::endpoint::vlans'
+# cisco_ise_redis_endpoint_key: 'netw::endpoint::vlan::'
+# cisco_ise_play_vlan: vlan100
+# include_redis_all: false
 
 cisco_ise_ers_username: api
 cisco_ise_ers_password: changeme
@@ -22,10 +22,10 @@ cisco_ise_ers_validate_certs: false
 
 # if true and no mac address given to identity group
 # all endpoints will be deleted 
-cisco_ise_endpoint_force: false
+# cisco_ise_endpoint_force: false
 # how long do we wait for bulk jobs to be completed
-cisco_ise_endpoint_timeout: 30
-redis_vlan_list: []
+# cisco_ise_endpoint_timeout: 30
+# redis_vlan_list: []
 
 #
 # identitygroups are defined as ARRAYS. 
@@ -33,16 +33,10 @@ redis_vlan_list: []
 # if MAC is empty array and 'cisco_ise_endpoint_force: true' 
 # all Endpoints will be deleted!
 #
-cisco_ise_identitygroups: [ {
-	name: "Workstation", 
-	mac: ["00:16:3e:2b:46:35","00:16:3e:5e:ab:2e","00:16:3e:7d:26:5a"] },{
-	name: "Blacklist",
-	mac: ["00:16:3e:2b:46:38"]
-} ]
 
-# if true all devices will be deleted and created again
-# use this if only RADIUS or TACACS shared secrets changed
-cisco_ise_networkdevice_force: false
+# if true all devices listed in the script will be just deleted
+delete_devices: false
+
 
 #
 # networkdevice configuration 
@@ -52,7 +46,8 @@ cisco_ise_networkdevice_force: false
 #
 
 cisco_mgmt_device_defaults: {
-	snmp_enabled: false,
+        mask: "32",
+        snmp_enabled: false,
 	snmp_version: 2c,
 	snmp_polling_interval: "28800",
 	snmp_ro_community: public,
