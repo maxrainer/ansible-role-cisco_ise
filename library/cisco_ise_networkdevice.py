@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #
 # Copyright (c) 2016, Markus Rainer <maxrainer18@gmail.com>
 #
@@ -237,7 +237,7 @@ def check_if_device_exist(dev_IPaddr, dev_name):
     dev_already_exist_dict = {}
     dev_already_exist_list = []
     http_result = ''
-    url = url_builder(ssl, server, port, ISE_URL['networkdevice'] + "?filter=ipaddress.CONTAINS."+ dev_IPaddr + "&filter=name.EQ." + dev_name + "&filtertype=or")
+    url = url_builder(ssl, server, port, ISE_URL['networkdevice'] + "?filter=ipaddress.EQ."+ dev_IPaddr + "&filter=name.EQ." + dev_name + "&filtertype=or")
     method = "GET"
 
     headers = {'Accept':ISE_NSPC['networkdevice_json']}
@@ -528,7 +528,7 @@ def main():
                     else:
                         raise Exception("Not able to get detail for device '%s'" % device_name)
                 else:
-                    module.fail_json(msg="2 Devices found - possible conflict. Failed to update Device: '%s': " % device_name)        
+                    module.fail_json(msg="2 Devices found - possible conflict. Failed to update Device: '%s' | conflict with: %s" % (device_name, str(device_exist_list)))        
         
         # result handling
         if (count_deleted > 0 or count_changed > 0 or count_added > 0):
