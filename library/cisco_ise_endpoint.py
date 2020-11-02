@@ -20,10 +20,10 @@
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.urls import open_url
-from urllib2 import URLError
+from urllib.error import URLError
 from time import sleep
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -89,7 +89,7 @@ def build_endpoint_delete_bulk_request(inner_data):
     return result
 
 def chunks(l, n):
-    return (l[i:i+n] for i in xrange(0, len(l), n))
+    return (l[i:i+n] for i in range(0, len(l), n))
 
 def is_valid_mac(mac):
     if re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", mac.lower()):
@@ -155,7 +155,7 @@ def _get_endpoints_by_group(group_id, page, result):
     try:
         con = open_url(url, headers=headers, method=method, use_proxy=False,force_basic_auth=True, 
                        validate_certs=validate_certs,  url_username=username, url_password=password)
-    except urllib2.HTTPError:
+    except urllib.error.HTTPError:
         return False
     if con.code == 200:
         tree = ET.fromstring(con.read())
@@ -367,7 +367,7 @@ def main():
                 module.fail_json(msg="MAC Address List is empty, but force is disabled")
             elif len(group_endpoints) > 0:
                 endpoint_id_list = []
-                for ep in group_endpoints.values():
+                for ep in list(group_endpoints.values()):
                     endpoint_id_list.append(ep.uuid)
                 if not delete_endpoint_bulk(endpoint_id_list):
                     module.fail_json(msg="Deleting all Endpoints for Identitygroup: '%s' failed." % identitygroup)
@@ -387,7 +387,7 @@ def main():
             # delete endpoints not in maclist but on ISE in given Identitygroup
             if remove_list:
                 endpoint_id_list = []
-                for ep in remove_list.values():
+                for ep in list(remove_list.values()):
                     endpoint_id_list.append(ep.uuid)
                 delete_endpoint_bulk(endpoint_id_list)
                 if not delta_list:
