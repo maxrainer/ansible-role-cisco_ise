@@ -46,7 +46,6 @@ delete_devices: false
 #
 
 cisco_mgmt_device_defaults: {
-        mask: "32",
         snmp_enabled: false,
 	snmp_version: 2c,
 	snmp_polling_interval: "28800",
@@ -58,10 +57,10 @@ cisco_mgmt_device_defaults: {
 	snmp_v3_privacy_protocol: DES,
 	snmp_v3_privacy_password: changeme,
 	snmp_v3_security_level: AUTH,
-	tacacs_enabled: true,
+	tacacs_enabled: false,
 	tacacs_shared_secret: changeme,
 	tacacs_connection_mode: ON_LEGACY,
-	radius_enabled: true,
+	radius_enabled: false,
 	radius_shared_secret: changeme,
 	radius_enable_keywrap: false,
 	radius_coaport: "1700",
@@ -78,5 +77,6 @@ cisco_mgmt_devices: [ {
 	name: testdevice1,
 	ipaddress: 192.168.0.1 },{
 	name: testdevice2,
-	ipaddress: 192.168.0.2 }
+	ipaddress: 192.168.1.0,
+	mask: 24 }
 ]
