@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 #
 # Copyright (c) 2016, Markus Rainer <maxrainer18@gmail.com>
 #
@@ -30,6 +30,7 @@ from ansible.module_utils.urls import open_url
 import json
 import re
 import copy
+import ipaddress
 import urllib
 import urllib2
 
@@ -58,7 +59,7 @@ NEEDED_DEVICE_KEYS = ['ipaddress','name']
 def build_networkdevice_json (name, inner_json):
     result = '{"NetworkDevice" : {"name": "' + name + '",\n'
     result += inner_json+'}\n}'
-    return result;
+    return result
 #---------------------------------------------------------------------------------------------------------------
 
 def build_radius_json(radiusSharedSecret, keyInputFormat = "ASCII", enableKeyWrap = "false", hide_pwds=False):
@@ -70,10 +71,36 @@ def build_radius_json(radiusSharedSecret, keyInputFormat = "ASCII", enableKeyWra
     result +='"keyInputFormat" : "' + keyInputFormat +'"},\n'
     return result
 #---------------------------------------------------------------------------------------------------------------
-def build_networkdevice_iplist_json(ipaddress, mask = '32', coaPort = '1700'):
+def f_ip_version_check(address_provided, mask_provided):
+    # mask = 200 - default value means that mask was not provided and we can assume host which is /32 for IPv4 and /128 for IPv6
+    result_ip = ''
+    result_mask = ''
+    device_ip = ipaddress.ip_address(address_provided)
+    if mask_provided == '':
+        if device_ip.version == 6:
+            mask = '128'
+            temp = str(address_provided) + '/128'
+        if device_ip.version == 4:
+            temp = str(address_provided) + '/32'
+            mask = '32'
+    else:
+        temp = str(address_provided) + '/' +str(mask_provided)
+        mask = str(mask_provided)
+    try:    
+        device_ip = ipaddress.ip_interface(temp)
+    except:
+        print(str(ipaddress.NetmaskValueError))
+
+    result_all = str(device_ip).split('/')
+    result_ip = result_all[0]
+    result_mask = mask
+    return result_ip,result_mask
+#---------------------------------------------------------------------------------------------------------------
+def build_networkdevice_iplist_json(ip_address, mask, coaPort = '1700'):
+    device_ip, device_mask = f_ip_version_check(ip_address,mask)
     result = '"coaPort" : "' + coaPort +'",\n'
     result += '"NetworkDeviceIPList" : [ {\n'
-    result += ' "ipaddress" : "' + ipaddress +'","mask" : "' + str(mask) +'"} ],\n'
+    result += ' "ipaddress" : "' + device_ip +'","mask" : "' + device_mask +'"} ],\n'
     return result
 #---------------------------------------------------------------------------------------------------------------
 
@@ -124,7 +151,8 @@ def build_snmp_json(roCommunity = 'public', version = '2c', pollingInterval = '2
 #---------------------------------------------------------------------------------------------------------------
 def build_add_body_json(device, outer=True, hide_pwds=False):
     inner = ''
-
+    if "description" in device:
+        inner += '"description" : "' + device['description'] +'",\n'
     if "radius_enabled" in device:
         if device['radius_enabled']:
             inner += build_radius_json(device['radius_shared_secret'], hide_pwds=hide_pwds)
@@ -314,96 +342,98 @@ def feed_networkdevices_with_default(orig_networkdevices_table, defaults):
 def feed_networkdevice_with_paramfromISE(networkdevice, ise_param):
 
     netdevice = copy.deepcopy(networkdevice)
-    ise_param_updated = copy.deepcopy(ise_param)
+    ise_param_to_update = copy.deepcopy(ise_param)
 #    print("---------- PROVIDED BY USER ---------------")
 #    print(netdevice)
 #    print("----------- FROM ISE  -----------")
-#    print(ise_param_updated)
+#    print(ise_param_to_update)
 #    print("--------END FEED---------")
     for key in netdevice.keys():
         #---------GENERAL fields for "NetworkDevice":  --------
         if key == "name":
-            ise_param_updated['NetworkDevice']['name'] = netdevice['name']
+            ise_param_to_update['NetworkDevice']['name'] = netdevice['name']
+        if key == "description":
+            ise_param_to_update['NetworkDevice']['description'] = netdevice['description']
         if key == "radius_coaport":
-            ise_param_updated['NetworkDevice']['coaPort'] = netdevice['radius_coaport']
+            ise_param_to_update['NetworkDevice']['coaPort'] = netdevice['radius_coaport']
         if key == "ipaddress":
-            ise_param_updated['NetworkDevice']['NetworkDeviceIPList'][0]['ipaddress'] = netdevice['ipaddress']
+            ise_param_to_update['NetworkDevice']['NetworkDeviceIPList'][0]['ipaddress'] = netdevice['ipaddress']
         if key == "mask":
-            ise_param_updated['NetworkDevice']['NetworkDeviceIPList'][0]['mask'] = netdevice['mask']
+            ise_param_to_update['NetworkDevice']['NetworkDeviceIPList'][0]['mask'] = netdevice['mask']
         #--------- SNMP fields --------
         if key == "snmp_enabled":
             if netdevice['snmp_enabled'] == 'true':
                 if "snmp_version" in netdevice:
                     if netdevice['snmp_version'] == '2c':
-                        ise_param_updated['NetworkDevice']['snmpsettings']['version'] = 'TWO_C'
+                        ise_param_to_update['NetworkDevice']['snmpsettings']['version'] = 'TWO_C'
                         if "snmp_ro_community" in netdevice:
-                            ise_param_updated['NetworkDevice']['snmpsettings']['roCommunity'] = netdevice['snmp_ro_community']
+                            ise_param_to_update['NetworkDevice']['snmpsettings']['roCommunity'] = netdevice['snmp_ro_community']
                     if netdevice['snmp_version'] == '1':
-                        ise_param_updated['NetworkDevice']['snmpsettings']['version'] = 'ONE'
+                        ise_param_to_update['NetworkDevice']['snmpsettings']['version'] = 'ONE'
                         if "snmp_ro_community" in netdevice:
-                            ise_param_updated['NetworkDevice']['snmpsettings']['roCommunity'] = netdevice['snmp_ro_community']
+                            ise_param_to_update['NetworkDevice']['snmpsettings']['roCommunity'] = netdevice['snmp_ro_community']
                     if netdevice['snmp_version'] == '3':
-                        ise_param_updated['NetworkDevice']['snmpsettings']['linkTrapQuery'] = 'true'
-                        ise_param_updated['NetworkDevice']['snmpsettings']['macTrapQuery'] = 'true'
-                        ise_param_updated['NetworkDevice']['snmpsettings']['version'] = 'THREE'
+                        ise_param_to_update['NetworkDevice']['snmpsettings']['linkTrapQuery'] = 'true'
+                        ise_param_to_update['NetworkDevice']['snmpsettings']['macTrapQuery'] = 'true'
+                        ise_param_to_update['NetworkDevice']['snmpsettings']['version'] = 'THREE'
                         if "snmp_v3_username" in netdevice:
-                            ise_param_updated['NetworkDevice']['snmpsettings']['username'] = netdevice['snmp_v3_username']
+                            ise_param_to_update['NetworkDevice']['snmpsettings']['username'] = netdevice['snmp_v3_username']
                         if "snmp_v3_security_level" in netdevice:
-                            ise_param_updated['NetworkDevice']['snmpsettings']['securityLevel'] = netdevice['snmp_v3_security_level']
+                            ise_param_to_update['NetworkDevice']['snmpsettings']['securityLevel'] = netdevice['snmp_v3_security_level']
 
                             if netdevice['snmp_v3_security_level'] == 'NO_AUTH':
-                                ise_param_updated['NetworkDevice']['snmpsettings'].pop('authProtocol', None)
-                                ise_param_updated['NetworkDevice']['snmpsettings'].pop('authPassword', None)
-                                ise_param_updated['NetworkDevice']['snmpsettings'].pop('privacyProtocol', None)
-                                ise_param_updated['NetworkDevice']['snmpsettings'].pop('privacyPassword', None)
+                                ise_param_to_update['NetworkDevice']['snmpsettings'].pop('authProtocol', None)
+                                ise_param_to_update['NetworkDevice']['snmpsettings'].pop('authPassword', None)
+                                ise_param_to_update['NetworkDevice']['snmpsettings'].pop('privacyProtocol', None)
+                                ise_param_to_update['NetworkDevice']['snmpsettings'].pop('privacyPassword', None)
                             if not netdevice['snmp_v3_security_level'] == 'NO_AUTH':
                                 if "snmp_v3_auth_protocol" in netdevice:
-                                    ise_param_updated['NetworkDevice']['snmpsettings']['authProtocol'] = netdevice['snmp_v3_auth_protocol']
+                                    ise_param_to_update['NetworkDevice']['snmpsettings']['authProtocol'] = netdevice['snmp_v3_auth_protocol']
                             if "snmp_v3_auth_password" in netdevice:
-                                    ise_param_updated['NetworkDevice']['snmpsettings']['authPassword'] = netdevice['snmp_v3_auth_password']
+                                    ise_param_to_update['NetworkDevice']['snmpsettings']['authPassword'] = netdevice['snmp_v3_auth_password']
 
                             if netdevice['snmp_v3_security_level'] == 'PRIV':
                                 if "snmp_v3_privacy_protocol" in netdevice:
-                                    ise_param_updated['NetworkDevice']['snmpsettings']['privacyProtocol'] = netdevice['snmp_v3_privacy_protocol']
+                                    ise_param_to_update['NetworkDevice']['snmpsettings']['privacyProtocol'] = netdevice['snmp_v3_privacy_protocol']
                                 if "snmp_v3_privacy_password" in netdevice:
-                                    ise_param_updated['NetworkDevice']['snmpsettings']['privacyPassword'] = netdevice['snmp_v3_privacy_password']
+                                    ise_param_to_update['NetworkDevice']['snmpsettings']['privacyPassword'] = netdevice['snmp_v3_privacy_password']
 
 
                 if "snmp_pooling_interval" in netdevice:
-                    ise_param_updated['NetworkDevice']['snmpsettings']['pollingInterval'] = netdevice['snmp_polling_interval']
+                    ise_param_to_update['NetworkDevice']['snmpsettings']['pollingInterval'] = netdevice['snmp_polling_interval']
             else:
-                ise_param_updated['NetworkDevice'].pop('snmpsettings', None)
+                ise_param_to_update['NetworkDevice'].pop('snmpsettings', None)
         #--------- TACACS fields --------
         if key == "tacacs_enabled":
             if netdevice['tacacs_enabled'] == True:
                 #if TACACS was not used in ISE for that device we need to initialize this dectionary to update specific fields
-                if 'tacacsSettings' not in ise_param_updated['NetworkDevice'].keys():
-                    ise_param_updated['NetworkDevice']['tacacsSettings'] = {}
-                    ise_param_updated['NetworkDevice']['tacacsSettings']['sharedSecret'] = "test"
-                    ise_param_updated['NetworkDevice']['tacacsSettings']['connectModeOptions'] = "OFF"
-                    ise_param_updated['NetworkDevice']['tacacsSettings']['previousSharedSecretExpiry'] = "0"
+                if 'tacacsSettings' not in ise_param_to_update['NetworkDevice'].keys():
+                    ise_param_to_update['NetworkDevice']['tacacsSettings'] = {}
+                    ise_param_to_update['NetworkDevice']['tacacsSettings']['sharedSecret'] = "test"
+                    ise_param_to_update['NetworkDevice']['tacacsSettings']['connectModeOptions'] = "OFF"
+                    ise_param_to_update['NetworkDevice']['tacacsSettings']['previousSharedSecretExpiry'] = "0"
                 if "tacacs_shared_secret" in netdevice:
-                    ise_param_updated['NetworkDevice']['tacacsSettings']['sharedSecret'] = netdevice['tacacs_shared_secret']
+                    ise_param_to_update['NetworkDevice']['tacacsSettings']['sharedSecret'] = netdevice['tacacs_shared_secret']
                 if "tacacs_connection_mode" in netdevice:
-                    ise_param_updated['NetworkDevice']['tacacsSettings']['connectModeOptions'] = netdevice['tacacs_connection_mode']
+                    ise_param_to_update['NetworkDevice']['tacacsSettings']['connectModeOptions'] = netdevice['tacacs_connection_mode']
 
             else:
-                ise_param_updated['NetworkDevice'].pop('tacacsSettings', None)
+                ise_param_to_update['NetworkDevice'].pop('tacacsSettings', None)
         #--------- RADIUS fields --------
         if key == "radius_enabled":
             if netdevice['radius_enabled'] == True:
                 if "radius_shared_secret" in netdevice:
-                    ise_param_updated['NetworkDevice']['authenticationSettings']['radiusSharedSecret'] = netdevice['radius_shared_secret']
+                    ise_param_to_update['NetworkDevice']['authenticationSettings']['radiusSharedSecret'] = netdevice['radius_shared_secret']
                 # to be completed 
 
             else:
-                ise_param_updated['NetworkDevice']['authenticationSettings']['radiusSharedSecret'] = ''
-                ise_param_updated['NetworkDevice']['authenticationSettings'].pop('networkProtocol', None)
+                ise_param_to_update['NetworkDevice']['authenticationSettings']['radiusSharedSecret'] = ''
+                ise_param_to_update['NetworkDevice']['authenticationSettings'].pop('networkProtocol', None)
         #---------- DEVICE GROUP membership ---------
         if key == "network_device_groups":
-            ise_param_updated['NetworkDevice']['NetworkDeviceGroupList'] = netdevice['network_device_groups']
+            ise_param_to_update['NetworkDevice']['NetworkDeviceGroupList'] = netdevice['network_device_groups']
 
-    return ise_param_updated
+    return ise_param_to_update
 #---------------------------------------------------------------------------------------------------------------
 def find_original_networkdevice_before_populating_defaults(networkdevices, dev_name):
     result = {}
@@ -481,7 +511,7 @@ def main():
 #        print("---------- ORIGINAL END -------")
         if delete_devices == True:
             #print("========= TRYING TO DELETE =============")
-            i = 0
+#            i = 0
             for i, device_name_dict in enumerate(networkdevices):
                 #print("========= DELETE: FOR: checking if device exist by name or IP. : " + json.dumps(device_name_dict, indent = 3))
                 device_exist_list = []
