@@ -30,8 +30,8 @@ from ansible.module_utils.urls import open_url
 import json
 import re
 import copy
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 try:
     import xml.etree.cElementTree as ET
@@ -305,7 +305,7 @@ def feed_networkdevices_with_default(orig_networkdevices_table, defaults):
     result = {}
     networkdevices_table = copy.deepcopy(orig_networkdevices_table)
     for dev in networkdevices_table:
-        for key in defaults.keys():
+        for key in list(defaults.keys()):
             if not key in dev:
                 dev[key] = defaults[key]
         result[dev['name']] = dev
@@ -320,7 +320,7 @@ def feed_networkdevice_with_paramfromISE(networkdevice, ise_param):
 #    print("----------- FROM ISE  -----------")
 #    print(ise_param_updated)
 #    print("--------END FEED---------")
-    for key in netdevice.keys():
+    for key in list(netdevice.keys()):
         #---------GENERAL fields for "NetworkDevice":  --------
         if key == "name":
             ise_param_updated['NetworkDevice']['name'] = netdevice['name']
@@ -377,7 +377,7 @@ def feed_networkdevice_with_paramfromISE(networkdevice, ise_param):
         if key == "tacacs_enabled":
             if netdevice['tacacs_enabled'] == True:
                 #if TACACS was not used in ISE for that device we need to initialize this dectionary to update specific fields
-                if 'tacacsSettings' not in ise_param_updated['NetworkDevice'].keys():
+                if 'tacacsSettings' not in list(ise_param_updated['NetworkDevice'].keys()):
                     ise_param_updated['NetworkDevice']['tacacsSettings'] = {}
                     ise_param_updated['NetworkDevice']['tacacsSettings']['sharedSecret'] = "test"
                     ise_param_updated['NetworkDevice']['tacacsSettings']['connectModeOptions'] = "OFF"
@@ -500,7 +500,7 @@ def main():
             # add devices from device_dict but only if the device doesn't exist (compare to device_exist_dict)
             # if device exists - try to update. Can be updated only if there is one device (having provided IP or name)
         
-            for device_name in device_dict.keys():
+            for device_name in list(device_dict.keys()):
                 device_exist_list = []
                 device_exist_list = check_if_device_exist(device_dict[device_name]['ipaddress'], device_name)
                 device = device_dict[device_name]
@@ -535,7 +535,7 @@ def main():
             changed = True
         module.exit_json(changed=changed, meta="Network Devices total work done: %d, added: %d, deleted: %d, changed: %d." % ((count_added+count_changed+count_deleted), count_added, count_deleted, count_changed))
     
-    except urllib2.HTTPError as ex:
+    except urllib.error.HTTPError as ex:
         msg = 'empty error code | might be realated to ISE itself'
         try:
             tree = ET.fromstring(ex.read())
