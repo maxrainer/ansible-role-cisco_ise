@@ -6,7 +6,7 @@ Endpoint and Networkdevice manipulation (add, delete, change) are supported so f
 
 Requirements
 ------------
-Cisco ISE version 2.1 or 2.2 (tested also on 2.7)
+tested on ISE 3.0
 
 Prerequisites
 -------------
@@ -143,6 +143,13 @@ Example 2:
       - name: xxxxxxxx23
         ipaddress: 193.166.0.0
         mask: 16
+      - name: subnet_ipv6_6
+        ipaddress: 2a00:9d00:1:2::b20:0
+        mask: 126
+        description: "subnet 1"
+        tacacs_enabled: true
+        tacacs_shared_secret: "sharedkey"
+        network_device_groups: ["Location#All Locations#USA#PHX","Device Type#All Device Types#Firewall#PaloAlto#FW - standalone","MFA#MFA#OKTA"]
 ```
 License
 -------
